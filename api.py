@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, AnyHttpUrl
 from typing import Optional, Dict, Any
 import uvicorn
 import os
@@ -28,13 +28,24 @@ app.add_middleware(
 )
 
 class ScanRequest(BaseModel):
-    url: HttpUrl
+    url: AnyHttpUrl
     scan_ssl: bool = False
     scan_cms: bool = False
     scan_headers: bool = False
     scan_cdn: bool = False
     scan_dns: bool = False
     scan_all: bool = False
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "url": "https://example.com",
+                    "scan_all": True
+                }
+            ]
+        }
+    }
 
 @app.post("/scan")
 async def scan(request: ScanRequest):
